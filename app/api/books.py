@@ -21,6 +21,17 @@ async def list_books(
     return PaginatedBooks(books=books, total=total, skip=skip, limit=limit)
 
 
+@router.get("/{book_id}", response_model=BookSchema)
+async def get_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(Book).filter(Book.id == book_id).first()
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with id {book_id} not found",
+        )
+    return book
+
+
 @router.post("/", response_model=BookSchema)
 async def create_book(
     book: BookCreate,
@@ -48,11 +59,12 @@ async def update_book(
     db_book = db.query(Book).filter(Book.id == book_id).first()
     if not db_book:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Book with id {book_id} not found",
         )
 
-    update_data = book_update.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
+    # Update only the fields that are provided
+    for field, value in book_update.model_dump(exclude_unset=True).items():
         setattr(db_book, field, value)
 
     db.commit()
