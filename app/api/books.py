@@ -1,6 +1,11 @@
+import asyncio
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
+from app.core.events import event_manager
 from app.core.security import get_current_user
 from app.database.database import get_db
 from app.models.book import Book
@@ -8,6 +13,18 @@ from app.schemas.book import Book as BookSchema
 from app.schemas.book import BookCreate, BookUpdate, PaginatedBooks
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
+
+
+@router.get("/stream")
+async def stream_books():
+    return StreamingResponse(
+        event_manager.subscribe(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @router.get("/", response_model=PaginatedBooks)
@@ -37,16 +54,22 @@ async def create_book(
     book: BookCreate,
     db: Session = Depends(get_db),
 ):
-    db_book = Book(
-        title=book.title,
-        author=book.author,
-        published_date=book.published_date,
-        summary=book.summary,
-        genre=book.genre,
-    )
+    db_book = Book(**book.dict())
     db.add(db_book)
     db.commit()
     db.refresh(db_book)
+
+    # Convert the book to a dict and ensure the date is serializable
+    book_data = BookSchema.from_orm(db_book).dict()
+    book_data["published_date"] = book_data["published_date"].isoformat()
+
+    # Broadcast the new book to all connected clients
+    asyncio.create_task(
+        event_manager.broadcast(
+            json.dumps({"event": "book_created", "data": book_data})
+        )
+    )
+
     return db_book
 
 

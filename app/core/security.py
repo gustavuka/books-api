@@ -35,7 +35,15 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 def is_public_endpoint(request: Request) -> bool:
-    public_paths = {"/", "/users/", "/auth/login", "/docs", "/openapi.json", "/redoc"}
+    public_paths = {
+        "/",
+        "/users/",
+        "/auth/login",
+        "/docs",
+        "/openapi.json",
+        "/redoc",
+        "/books/stream",
+    }
     return request.url.path in public_paths
 
 
