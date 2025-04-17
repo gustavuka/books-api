@@ -9,7 +9,7 @@ from app.models.book import Book
 TEST_USER = {
     "username": "testuser",
     "email": "test@example.com",
-    "password": "testpass123",
+    "password": "testpassword",
 }
 
 TEST_BOOK = {
