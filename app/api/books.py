@@ -29,8 +29,8 @@ async def stream_books():
 
 @router.get("/", response_model=PaginatedBooks)
 async def list_books(
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(20, ge=1, le=100, description="Number of records to return"),
+    skip: int = Query(0, ge=0, description="Skip N records"),
+    limit: int = Query(20, ge=1, le=100, description="Limit to N records"),
     db: Session = Depends(get_db),
 ):
     total = db.query(Book).count()

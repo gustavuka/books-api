@@ -1,8 +1,6 @@
 import asyncio
 from typing import AsyncGenerator, List
 
-from fastapi import HTTPException
-
 
 class EventManager:
     def __init__(self):
