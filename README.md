@@ -1,12 +1,23 @@
-# Books API
+# Book Management API
 
-A FastAPI application for managing a collection of books with real-time updates.
+A FastAPI-based REST API for managing a collection of books with real-time updates.
 
 ## Features
 
+-   User authentication with JWT tokens
 -   CRUD operations for books
--   JWT-based authentication
 -   Real-time updates using Server-Sent Events (SSE)
+-   Pagination support
+-   Search functionality
+
+## Deployment
+
+The application is deployed on Heroku at [https://gustavo-books-api-8453f37cfc3a.herokuapp.com/](https://gustavo-books-api-8453f37cfc3a.herokuapp.com/).
+
+### Database Configuration
+
+-   Locally it works with SQLite
+-   The deployed application uses PostgreSQL on Heroku instead of SQLite. SQLite is not recommended for production use on Heroku due to its file-based nature and limitations with Heroku's ephemeral filesystem
 
 ## API Endpoints
 
@@ -106,3 +117,49 @@ uvicorn app.main:app --reload
 
 -   Swagger UI: http://localhost:8000/docs
 -   ReDoc: http://localhost:8000/redoc
+
+## Using the API Documentation (Swagger UI)
+
+-   Run the application locally and access http://localhost:8000/docs
+-   The API documentation is also available at [https://gustavo-books-api-8453f37cfc3a.herokuapp.com/docs](https://gustavo-books-api-8453f37cfc3a.herokuapp.com/docs).
+
+1. **Create a User Account**
+
+    - Click on the `POST /users/` endpoint
+    - Click "Try it out"
+    - Enter your user details in the request body:
+        ```json
+        {
+            "username": "yourusername",
+            "email": "your@email.com",
+            "password": "yourpassword"
+        }
+        ```
+    - Click "Execute"
+
+2. **Login and Get Token**
+
+    - Click on the `POST /auth/login` endpoint
+    - Click "Try it out"
+    - Enter your credentials:
+        ```json
+        {
+            "username": "yourusername",
+            "password": "yourpassword"
+        }
+        ```
+    - Click "Execute"
+    - Copy the `access_token` from the response
+
+3. **Authorize the API**
+
+    - Click the "Authorize" button at the top of the page
+    - Enter your token in the format: `your-token-here`
+    - Click "Authorize"
+    - Now you can use all protected endpoints
+
+4. **Using Protected Endpoints**
+
+    - Try creating a book with `POST /books/`
+    - List books with `GET /books/`
+    - Update or delete books using their IDs
